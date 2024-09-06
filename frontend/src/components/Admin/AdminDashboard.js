@@ -8,7 +8,7 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     // Call API to get all chats
-    axios.get('/api/chats')
+    axios.get('localhost:5000/api/auth/users')
       .then(response => {
         setChats(response.data);
       })

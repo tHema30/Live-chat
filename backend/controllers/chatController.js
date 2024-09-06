@@ -2,20 +2,16 @@ import asyncHandler from 'express-async-handler';
 import Chat from '../models/chatModel.js';
 import User from '../models/User.js';
 
-// @desc    Access or create a chat between two users
-// @route   POST /api/chat/access
-// @access  Private
 const accessChat = asyncHandler(async (req, res) => {
-  const { userId } = req.body;
-  // console.log(req.user)
+  const { _id } = req.user;
 
-  if (!userId) {
+  if (!_id) {
     res.status(400);
-    throw new Error('UserId param not sent with request');
+    throw new Error('_id param not sent with request');
   }
 
   let chat = await Chat.findOne({
-    users: { $all: [req.user._id, userId] },
+    users: { $all: [req.user._id, _id] },
   })
     .populate('users', '-password')
     .populate('latestMessage');
@@ -25,7 +21,7 @@ const accessChat = asyncHandler(async (req, res) => {
   } else {
     const chatData = {
       chatName: 'sender',
-      users: [req.user._id, userId],
+      users: [req.user._id, _id],
     };
 
     try {
@@ -38,10 +34,9 @@ const accessChat = asyncHandler(async (req, res) => {
     }
   }
 });
-
 // @desc    Send a message to a chat
 // @route   POST /api/chat/message
-// @access  Private
+
 const sendMessage = asyncHandler(async (req, res) => {
   const { chatId, content } = req.body;
 

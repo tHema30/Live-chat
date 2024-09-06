@@ -5,7 +5,7 @@ import protect from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Route to access or create a chat
-router.post('/access', accessChat);
+router.post('/access',protect, accessChat);
 
 // Route to send a message
 router.post('/message', protect, sendMessage);

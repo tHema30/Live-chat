@@ -7,16 +7,20 @@ const protect = asyncHandler(async (req, res, next) => {
   let token;
 
   token = req.cookies.jwt;
+ // console.log(req.cookies.jwt);
+  
   console.log('JWT_SECRET:', process.env.JWT_SECRET); // Debug line
 
   if (token) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+        console.log("--",decoded);
+        
          req.user = await User.findById(decoded._id).select('-password');
-        //  console.log('Decoded User ID:', decoded.id);
-        //  console.log('User:', req.user);
-        console.log(req.cookies)
+         console.log(req.user);
+         
+         console.log('Decoded User ID:', decoded._id);
+         console.log('User:', req.user);
 
 
          next();

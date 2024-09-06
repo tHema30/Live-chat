@@ -73,7 +73,7 @@ const UserSignup = () => {
 
     try {
       const { data } = await axios.post(
-        `${process.env.REACT_APP_SERVER_URL}/api/users/`,
+        `${process.env.REACT_APP_SERVER_URL}/api/auth/register`,
         {
           ...inputValue
         },
