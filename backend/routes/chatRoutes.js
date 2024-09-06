@@ -4,12 +4,12 @@ import  protect  from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Access or create chat
-router.post('/', protect, accessChat);
+router.post('/access',protect, accessChat);
 
 // Send message
-router.post('/message', protect, sendMessage);
+router.post('/message',protect, sendMessage);
 
 // Fetch all chats
-router.get('/', protect, fetchChats);
+router.get('/', protect,protect, fetchChats);
 
 export default router;

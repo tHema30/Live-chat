@@ -9,9 +9,9 @@ const router = express.Router();
 router.post('/register', registerUser);
 
 // Authenticate a user
-router.post('/login', protect,authUser);
+router.post('/login',authUser);
 // Get all users (Admin)
-router.get('/users', getUsers);
+router.get('/users',protect, getUsers);
 
 
 export default router;

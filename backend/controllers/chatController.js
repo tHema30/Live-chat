@@ -2,11 +2,19 @@ import asyncHandler from 'express-async-handler';
 import Chat from '../models/chatModel.js';
 import User from '../models/User.js';
 
-
-// @route   POST /api/chat/
+// @route   POST /api/chat/access
 // @access  Private
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
+
+  // Debugging: Log the user and userId to ensure both are available
+  console.log('Logged in user:', req.user);  // Should print the user info
+  console.log('UserId from request body:', userId);  // Should print userId from the request
+
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authorized, user information not available');
+  }
 
   if (!userId) {
     res.status(400);
@@ -15,7 +23,12 @@ const accessChat = asyncHandler(async (req, res) => {
 
   let chat = await Chat.findOne({
     participants: { $all: [req.user._id, userId] },
-  }).populate('participants', '-password').populate('messages.sender', '-password');
+  })
+  .populate('participants', '-password')
+  .populate('messages.sender', '-password');
+
+  // Debugging: Log chat found or not
+  console.log('Chat found:', chat);
 
   if (chat) {
     res.send(chat);
@@ -25,6 +38,9 @@ const accessChat = asyncHandler(async (req, res) => {
     });
 
     const fullChat = await Chat.findById(chat._id).populate('participants', '-password');
+
+    // Debugging: Log created chat
+    console.log('New chat created:', fullChat);
 
     res.status(201).json(fullChat);
   }
@@ -36,12 +52,24 @@ const accessChat = asyncHandler(async (req, res) => {
 const sendMessage = asyncHandler(async (req, res) => {
   const { chatId, content } = req.body;
 
+  // Debugging: Log chatId and content to make sure they are passed correctly
+  console.log('Chat ID:', chatId);
+  console.log('Message content:', content);
+
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authorized, user information not available');
+  }
+
   if (!chatId || !content) {
     res.status(400);
     throw new Error('chatId and content are required');
   }
 
   const chat = await Chat.findById(chatId);
+
+  // Debugging: Log if chat exists
+  console.log('Chat found for message:', chat);
 
   if (!chat) {
     res.status(404);
@@ -60,6 +88,9 @@ const sendMessage = asyncHandler(async (req, res) => {
     .populate('participants', '-password')
     .populate('messages.sender', '-password');
 
+  // Debugging: Log updated chat with the new message
+  console.log('Updated chat after sending message:', updatedChat);
+
   res.status(201).json(updatedChat);
 });
 
@@ -67,15 +98,23 @@ const sendMessage = asyncHandler(async (req, res) => {
 // @route   GET /api/chat/
 // @access  Private
 const fetchChats = asyncHandler(async (req, res) => {
+  // Debugging: Log the logged-in user
+  console.log('Fetching chats for user:', req.user);
+
+  if (!req.user) {
+    res.status(401);
+    throw new Error('Not authorized, user information not available');
+  }
+
   const chats = await Chat.find({ participants: { $in: [req.user._id] } })
     .populate('participants', '-password')
     .populate('messages.sender', '-password')
     .sort({ updatedAt: -1 });
 
+  // Debugging: Log the chats found for the user
+  console.log('Chats fetched:', chats);
+
   res.status(200).json(chats);
 });
 
-export { accessChat,
-       sendMessage,
-        fetchChats
-   };
+export { accessChat, sendMessage, fetchChats };
