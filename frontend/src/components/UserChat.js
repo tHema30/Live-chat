@@ -2,19 +2,17 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import '../App.css';
 
-const socket = io('http://localhost:5000'); // Connect to the backend server
+const socket = io('http://localhost:5000'); 
 
 const UserChat = () => {
   const [message, setMessage] = useState('');
   const [chat, setChat] = useState([]);
 
   useEffect(() => {
-    // Listen for messages from the server
     socket.on('chat message', (msg) => {
       setChat((prevChat) => [...prevChat, msg]);
     });
 
-    // Clean up the effect
     return () => {
       socket.off('chat message');
     };

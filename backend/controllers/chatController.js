@@ -52,7 +52,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     throw new Error('Chat not found');
   }
 
-  chat.latestMessage = content;  // This assumes `content` is the message or message ID
+  chat.latestMessage = content;
   await chat.save();
 
   const updatedChat = await Chat.findById(chatId)

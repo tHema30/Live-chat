@@ -66,7 +66,6 @@ const Login = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      // If the form is not valid, return early
       return;
     }
 
@@ -102,7 +101,7 @@ const Login = () => {
         handleError(message);
       }
     } catch (error) {
-      handleError("Invalid email or password."); // Display an error message if there's an exception
+      handleError("Invalid email or password."); 
     }
 
     setInputValue({
@@ -119,9 +118,8 @@ const Login = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLogout = () => {
-    // Implement the logout logic, e.g., clear user session, reset login state
     setIsLoggedIn(false);
-    navigate("/"); // Redirect to the login page or another route after logout
+    navigate("/"); 
   };
 
   return (

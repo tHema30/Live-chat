@@ -7,7 +7,6 @@ const AdminDashboard = () => {
   const [selectedChat, setSelectedChat] = useState(null);
 
   useEffect(() => {
-    // Call API to get all chats
     axios.get('localhost:5000/api/auth/users')
       .then(response => {
         setChats(response.data);
@@ -23,11 +22,9 @@ const AdminDashboard = () => {
 
   const handleSendMessage = () => {
     if (selectedChat && newMessage) {
-      // Call API to send message
       axios.post(`/api/chats/${selectedChat.id}/messages`, { message: newMessage })
         .then(response => {
           setNewMessage('');
-          // Update chat history
           setChats(chats.map(chat => {
             if (chat.id === selectedChat.id) {
               return { ...chat, messages: [...chat.messages, response.data] };

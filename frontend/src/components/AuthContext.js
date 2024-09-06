@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get('/api/auth/me'); // Adjust based on your auth route
+        const res = await axios.get('/api/auth/me'); 
         setUser(res.data);
       } catch (err) {
         setUser(null);

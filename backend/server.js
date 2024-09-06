@@ -52,7 +52,6 @@ mongoose.connect(process.env.MONGO_URI, {
     // Listen for 'chat message' events
     socket.on('chat message', (msg) => {
       console.log('Message received: ' + msg);
-      // Broadcast the message to all connected clients
       io.emit('chat message', msg);
     });
 
