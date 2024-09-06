@@ -2,19 +2,11 @@ import asyncHandler from 'express-async-handler';
 import Chat from '../models/chatModel.js';
 import User from '../models/User.js';
 
+// @desc    Access or create a chat between two users
 // @route   POST /api/chat/access
 // @access  Private
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
-
-  // Debugging: Log the user and userId to ensure both are available
-  console.log('Logged in user:', req.user);  // Should print the user info
-  console.log('UserId from request body:', userId);  // Should print userId from the request
-
-  if (!req.user) {
-    res.status(401);
-    throw new Error('Not authorized, user information not available');
-  }
 
   if (!userId) {
     res.status(400);
@@ -22,44 +14,35 @@ const accessChat = asyncHandler(async (req, res) => {
   }
 
   let chat = await Chat.findOne({
-    participants: { $all: [req.user._id, userId] },
+    users: { $all: [req.user._id, userId] },
   })
-  .populate('participants', '-password')
-  .populate('messages.sender', '-password');
-
-  // Debugging: Log chat found or not
-  console.log('Chat found:', chat);
+    .populate('users', '-password')
+    .populate('latestMessage');
 
   if (chat) {
-    res.send(chat);
+    res.status(200).json(chat);
   } else {
-    chat = await Chat.create({
-      participants: [req.user._id, userId],
-    });
+    const chatData = {
+      chatName: 'sender',
+      users: [req.user._id, userId],
+    };
 
-    const fullChat = await Chat.findById(chat._id).populate('participants', '-password');
-
-    // Debugging: Log created chat
-    console.log('New chat created:', fullChat);
-
-    res.status(201).json(fullChat);
+    try {
+      const createdChat = await Chat.create(chatData);
+      const fullChat = await Chat.findById(createdChat._id).populate('users', '-password');
+      res.status(201).json(fullChat);
+    } catch (error) {
+      res.status(400);
+      throw new Error('Chat creation failed');
+    }
   }
 });
 
-// @desc    Send message
+// @desc    Send a message to a chat
 // @route   POST /api/chat/message
 // @access  Private
 const sendMessage = asyncHandler(async (req, res) => {
   const { chatId, content } = req.body;
-
-  // Debugging: Log chatId and content to make sure they are passed correctly
-  console.log('Chat ID:', chatId);
-  console.log('Message content:', content);
-
-  if (!req.user) {
-    res.status(401);
-    throw new Error('Not authorized, user information not available');
-  }
 
   if (!chatId || !content) {
     res.status(400);
@@ -68,28 +51,17 @@ const sendMessage = asyncHandler(async (req, res) => {
 
   const chat = await Chat.findById(chatId);
 
-  // Debugging: Log if chat exists
-  console.log('Chat found for message:', chat);
-
   if (!chat) {
     res.status(404);
     throw new Error('Chat not found');
   }
 
-  const message = {
-    sender: req.user._id,
-    content: content,
-  };
-
-  chat.messages.push(message);
+  chat.latestMessage = content;  // This assumes `content` is the message or message ID
   await chat.save();
 
   const updatedChat = await Chat.findById(chatId)
-    .populate('participants', '-password')
-    .populate('messages.sender', '-password');
-
-  // Debugging: Log updated chat with the new message
-  console.log('Updated chat after sending message:', updatedChat);
+    .populate('users', '-password')
+    .populate('latestMessage');
 
   res.status(201).json(updatedChat);
 });
@@ -98,21 +70,10 @@ const sendMessage = asyncHandler(async (req, res) => {
 // @route   GET /api/chat/
 // @access  Private
 const fetchChats = asyncHandler(async (req, res) => {
-  // Debugging: Log the logged-in user
-  console.log('Fetching chats for user:', req.user);
-
-  if (!req.user) {
-    res.status(401);
-    throw new Error('Not authorized, user information not available');
-  }
-
-  const chats = await Chat.find({ participants: { $in: [req.user._id] } })
-    .populate('participants', '-password')
-    .populate('messages.sender', '-password')
+  const chats = await Chat.find({ users: { $in: [req.user._id] } })
+    .populate('users', '-password')
+    .populate('latestMessage')
     .sort({ updatedAt: -1 });
-
-  // Debugging: Log the chats found for the user
-  console.log('Chats fetched:', chats);
 
   res.status(200).json(chats);
 });

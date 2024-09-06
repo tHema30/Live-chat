@@ -1,15 +1,16 @@
 import express from 'express';
 import { accessChat, sendMessage, fetchChats } from '../controllers/chatController.js';
-import  protect  from '../middleware/authMiddleware.js';
+import protect from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
-// Access or create chat
-router.post('/access',protect, accessChat);
+// Route to access or create a chat
+router.post('/', protect, accessChat);
 
-// Send message
-router.post('/message',protect, sendMessage);
+// Route to send a message
+router.post('/message', protect, sendMessage);
 
-// Fetch all chats
-router.get('/', protect,protect, fetchChats);
+// Route to fetch all chats for the user
+router.get('/', protect, fetchChats);
 
 export default router;
