@@ -11,7 +11,7 @@ router.post('/register', registerUser);
 // Authenticate a user
 router.post('/login',authUser);
 // Get all users (Admin)
-router.get('/users',protect, getUsers);
+router.get('/users', getUsers);
 
 
 export default router;

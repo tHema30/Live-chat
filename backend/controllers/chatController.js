@@ -7,6 +7,7 @@ import User from '../models/User.js';
 // @access  Private
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
+  // console.log(req.user)
 
   if (!userId) {
     res.status(400);
