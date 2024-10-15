@@ -39,6 +39,7 @@ const accessChat = asyncHandler(async (req, res) => {
 
 const sendMessage = asyncHandler(async (req, res) => {
   const { chatId, content } = req.body;
+  console.log(content,chatId)
 
   if (!chatId || !content) {
     res.status(400);
